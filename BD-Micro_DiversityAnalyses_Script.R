@@ -43,7 +43,7 @@ options(scipen=999)
 feat <- here("Microbiome/Input", "tablesilva.qza")
 taxo <- here("Microbiome/Input", "silva_97_taxonomy.qza" )
 treeroot <- here("Microbiome/Input", "rooted_tree_masked_alignment.qza")
-meta <- here("Data/FinalData/MetadataImputed.txt")
+meta <- here("Data/FinalData/MetadataImputed.txt")   # Use metadata after dropping controls and samples without breast density
 
 # Convert imported CHEAR files to phyloseq object 
 phyobj<-qza_to_phyloseq(features=feat,
