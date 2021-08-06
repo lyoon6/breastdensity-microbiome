@@ -45,7 +45,7 @@ taxo <- here("Microbiome/Input", "silva_97_taxonomy.qza" )
 treeroot <- here("Microbiome/Input", "rooted_tree_masked_alignment.qza")
 meta <- here("Data/FinalData/MetadataImputed.txt")   # Use metadata after dropping controls and samples without breast density
 
-# Convert imported CHEAR files to phyloseq object 
+# Convert imported  files to phyloseq object 
 phyobj<-qza_to_phyloseq(features=feat,
                         taxonomy=taxo,
                         tree=treeroot,
@@ -56,6 +56,25 @@ taxtable<-as.data.frame(tax_table(phyobj))
 phytree<-phy_tree(phyobj) 
 metadata<-sample_data(phyobj) 
 asvs<-otu_table(phyobj) 
+
+
+# OTU Table
+phyobjasv <- as(otu_table(phyobj), "matrix")
+if(taxa_are_rows(phyobj)){phyobjasv <- t(phyobjasv)}
+phyobjasvdf <- as.data.frame(phyobjasv)
+phyobjasvdf <- rownames_to_column(phyobjasvdf, "SampleID")
+write.csv(phyobjasvdf, file="Data/FinalData/ASVtable.csv", 
+            sep="\t", row.names=FALSE)
+
+# Tax Table 
+phyobjtax <- as(tax_table(phyobj), "matrix")
+if(taxa_are_rows(phyobj)){phyobjtax <- t(phyobjtax)}
+phyobjtaxdf <- as.data.frame(phyobjtax)
+phyobjtaxdf <- rownames_to_column(phyobjtaxdf, "Taxonomy")
+write.table(phyobjtaxdf, file="Data/FinalData/TAXtable.csv", 
+            sep="\t", row.names=FALSE)
+
+
 
 
 #############################################
@@ -631,36 +650,38 @@ permbray1 <- adonis2(bray_dist ~ sample_data(subpo2rf)$pFGV_tert)
 
 # Model 2: percent FGV ~ Fat
 permbray2 <- adonis2(bray_dist ~ sample_data(subpo2rf)$pFGV_tert 
-                     + sample_data(subpo2rf)$fatcat)
+                     + sample_data(subpo2rf)$fatcat_2pm)
 
 # Model 3: percent FGV ~ fat, age, antibiotic use, birth mode, breast feeding, caloric intake, medu, ethnicity  [TABLE 2]
 permbray3 <- adonis2(bray_dist ~ sample_data(subpo2rf)$pFGV_tert 
-                     + sample_data(subpo2rf)$fatcat
+                     + sample_data(subpo2rf)$fatcat_2pm
                      + sample_data(subpo2rf)$age_2pm
-                     + sample_data(subpo2rf)$abx6mo
-                     + sample_data(subpo2rf)$birth_mode
+                     + sample_data(subpo2rf)$abx_6mo
+                     + sample_data(subpo2rf)$birthmode
                      + sample_data(subpo2rf)$bfeedcat
                      + sample_data(subpo2rf)$AvgCalQ
-                     + sample_data(subpo2rf)$meducatbin 
-                     + sample_data(subpo2rf)$ethnicity )
+                     + sample_data(subpo2rf)$medu 
+                     + sample_data(subpo2rf)$ethnicity
+                     + sample_data(subpo2rf)$tvcat)
 
 # Model 4: absolute FGV
 permbray4 <- adonis2(bray_dist ~ sample_data(subpo2rf)$aFGV_tert)
 
 # Model 5: absolute FGV ~ Fat
 permbray5 <- adonis2(bray_dist ~ sample_data(subpo2rf)$aFGV_tert 
-                     + sample_data(subpo2rf)$fatcat)
+                     + sample_data(subpo2rf)$fatcat_2pm)
 
 # Model 6: absolute FGV ~ fat, age, antibiotic use, birth mode, breast feeding, caloric intake, medu, ethnicity [TABLE 2]
 permbray6 <- adonis2(bray_dist ~ sample_data(subpo2rf)$aFGV_tert 
-                     + sample_data(subpo2rf)$fatcat
+                     + sample_data(subpo2rf)$fatcat_2pm
                      + sample_data(subpo2rf)$age_2pm
-                     + sample_data(subpo2rf)$abx6mo
-                     + sample_data(subpo2rf)$birth_mode
+                     + sample_data(subpo2rf)$abx_6mo
+                     + sample_data(subpo2rf)$birthmode
                      + sample_data(subpo2rf)$bfeedcat
                      + sample_data(subpo2rf)$AvgCalQ
-                     + sample_data(subpo2rf)$meducatbin 
-                     + sample_data(subpo2rf)$ethnicity )
+                     + sample_data(subpo2rf)$medu 
+                     + sample_data(subpo2rf)$ethnicity
+                     + sample_data(subpo2rf)$tvcat)
 
 # Evaluate homogeneity of dispersion 
 beta_p <- betadisper(bray_dist, sample_data(subpo2rf)$pFGV_tert)
